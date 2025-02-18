@@ -18,17 +18,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarVC = UITabBarController()
         
-        let vc1 = MainViewController()
+        let vc1 = UINavigationController(rootViewController: MainViewController())
+        let vc2 = UINavigationController(rootViewController: SearchViewController())
         
         vc1.title = "Main"
+        vc2.title = "Search"
         
-        tabBarVC.setViewControllers([vc1], animated: false)
+        tabBarVC.setViewControllers([vc1, vc2], animated: false)
         tabBarVC.modalPresentationStyle = .fullScreen
         tabBarVC.tabBar.backgroundColor = .black
-        tabBarVC.tabBar.tintColor = .darkGray
+        tabBarVC.tabBar.tintColor = .lightGray
+        tabBarVC.tabBar.unselectedItemTintColor = .darkGray
         
         guard let items = tabBarVC.tabBar.items else { return }
         items[0].image = UIImage(systemName: "house")
+        items[1].image = UIImage(systemName: "magnifyingglass")
         
         window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()

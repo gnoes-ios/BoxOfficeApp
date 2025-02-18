@@ -9,8 +9,7 @@ import Foundation
     
 struct KobisApi {
     static let baseURL: String = "https://kobis.or.kr/kobisopenapi"
-    static let dailyBoxOfficePath: String = "/webservice/rest/boxoffice/searchDailyBoxOfficeList.json?"
-    static let SearchMoviePath: String = "/webservice/rest/movie/searchMovieList"
+    static let dailyBoxOfficePath: String = "/webservice/rest/boxoffice/searchDailyBoxOfficeList.json"
     static let apiKey: String = Bundle.main.object(forInfoDictionaryKey: "KobisApiKey") as! String
     
     static var date: String {
@@ -25,9 +24,11 @@ struct KobisApi {
 
 struct TmdbApi {
     static let baseURL: String = "https://api.themoviedb.org/3"
-    static let searchMoviePath: String = "/search/movie?"
+    static let searchMoviePath: String = "/search/movie"
+    static let MovieDetailsPath: String = "/movie"
     static let apiKey: String = Bundle.main.object(forInfoDictionaryKey: "TmdbApiKey") as! String
     static let language: String = "ko-KR"
+    static let appendToResponse: String = "credits,videos"
     
     private init() {}
 }

@@ -45,14 +45,14 @@ final class NetworkManager {
         
         return movies.boxOfficeResult.dailyBoxOfficeList
     }
-    // MARK: - 영화 상세 정보 불러오기
+    // MARK: - 영화 정보 불러오기
     func fetchSearchMovie(_ movie: DailyBoxOfficeList) async throws -> MovieSearchResult? {
         var components = URLComponents(string: TmdbApi.baseURL + TmdbApi.searchMoviePath)
         components?.queryItems = [
             URLQueryItem(name: "api_key", value: TmdbApi.apiKey),
             URLQueryItem(name: "language", value: TmdbApi.language),
             URLQueryItem(name: "query", value: movie.movieNm),
-            URLQueryItem(name: "year", value: String(movie.openDt.prefix(4)))
+            URLQueryItem(name: "year", value: String(movie.openDt.prefix(4))),
         ]
 
         guard let urlString = components?.url?.absoluteString,
@@ -75,5 +75,59 @@ final class NetworkManager {
         return movie.results.first
     }
     
+    func fetchSearchMovieList(_ keyword: String) async throws -> [MovieSearchResult] {
+        var components = URLComponents(string: TmdbApi.baseURL + TmdbApi.searchMoviePath)
+        components?.queryItems = [
+            URLQueryItem(name: "api_key", value: TmdbApi.apiKey),
+            URLQueryItem(name: "language", value: TmdbApi.language),
+            URLQueryItem(name: "query", value: keyword),
+        ]
+
+        guard let urlString = components?.url?.absoluteString else {
+            throw "URL 변환 에러"
+        }
+
+        let url = URL(string: urlString)!
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw "서버 응답 에러"
+        }
+        
+        guard let movie = try? JSONDecoder().decode(MovieSearchResponse.self, from: data) else {
+            throw "데이터 변환 에러"
+        }
+        
+        return movie.results
+    }
+    // MARK: - 영화 상세 정보 불러오기
+    func fetchMovieDetail(_ movieID: Int) async throws -> MovieDetailResponse {
+        var components = URLComponents(string: TmdbApi.baseURL + TmdbApi.MovieDetailsPath + "/\(movieID)")
+        components?.queryItems = [
+            URLQueryItem(name: "api_key", value: TmdbApi.apiKey),
+            URLQueryItem(name: "language", value: TmdbApi.language),
+            URLQueryItem(name: "append_to_response", value: TmdbApi.appendToResponse),
+        ]
+        
+        guard let urlString = components?.url?.absoluteString else {
+            throw "URL 변환 에러"
+        }
+        
+        let url = URL(string: urlString)!
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw "서버 응답 에러"
+        }
+        
+        guard let movie = try? JSONDecoder().decode(MovieDetailResponse.self, from: data) else {
+            throw "데이터 변환 에러"
+        }
+        
+        return movie
+        
+    }
     
 }

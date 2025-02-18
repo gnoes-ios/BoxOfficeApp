@@ -18,14 +18,15 @@ class MainViewController: UIViewController {
         return collectionView
     }()
     
-    @Published var dailyBoxOfficeDetails: [DailyBoxofficeDetail] = []
+    @Published var dailyBoxOfficeInfos: [DailyBoxOfficeInfo] = []
     var subscriptions = Set<AnyCancellable>()
     
     enum Section {
         case main
     }
-    typealias Item = DailyBoxofficeDetail
+    typealias Item = DailyBoxOfficeInfo
     var datasource: UICollectionViewDiffableDataSource<Section, Item>!
+    
     
     
     override func viewDidLoad() {
@@ -34,15 +35,26 @@ class MainViewController: UIViewController {
         setupUI()
         setupCollectionView()
         setupBindings()
-        fetchDailyBoxOfficeDetails()
+        setupSeaerchController()
+        fetchDailyBoxOfficeInfos()
     }
     
     private func setupUI() {
-        self.view.backgroundColor = .darkGray
+        self.view.backgroundColor = #colorLiteral(red: 0.05697039515, green: 0.05697039515, blue: 0.05697039515, alpha: 1)
+        var date: String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "M월 dd일"
+            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
+            return dateFormatter.string(from: yesterday)
+        }
+        self.title = "\(date) 박스오피스"
     }
     
     private func setupCollectionView() {
-        view.addSubview(collectionView)
+        collectionView.delegate = self
+        collectionView.isScrollEnabled = false
+
+        self.view.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -57,7 +69,7 @@ class MainViewController: UIViewController {
         datasource = UICollectionViewDiffableDataSource<Section, Item>.init(collectionView: collectionView, cellProvider: { collectionView, indexPath, item in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.moviePosterCellID, for: indexPath) as! MoviePosterCell
             
-            cell.configure(item, showTitle: false)
+            cell.configure(item, false)
             
             return cell
         })
@@ -74,36 +86,40 @@ class MainViewController: UIViewController {
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .groupPagingCentered
         section.interGroupSpacing = 20
-        section.contentInsets = NSDirectionalEdgeInsets(top: 70, leading: 0, bottom: 0, trailing: 0)
+        section.contentInsets = NSDirectionalEdgeInsets(top: 40, leading: 0, bottom: 0, trailing: 0)
         
         let layout = UICollectionViewCompositionalLayout(section: section)
         return layout
     }
     
     private func setupBindings() {
-        $dailyBoxOfficeDetails
-            .receive(on: RunLoop.main) // 메인 스레드에서 실행
+        $dailyBoxOfficeInfos
+            .receive(on: RunLoop.main)
             .map { movies in
-                // movies 배열을 rank 기준으로 오름차순 정렬
                 movies.sorted {
                     (Int($0.rank) ?? 0) < (Int($1.rank) ?? 0)
                 }
             }
             .sink { [weak self] sortedMovies in
-                // NSDiffableDataSourceSnapshot 업데이트
+                guard let self = self else { return }
                 var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
                 snapshot.appendSections([.main])
                 snapshot.appendItems(sortedMovies, toSection: .main)
-                self?.datasource.apply(snapshot)
+                self.datasource.apply(snapshot)
             }
             .store(in: &subscriptions)
     }
     
-    private func fetchDailyBoxOfficeDetails() {
+    private func setupSeaerchController() {
+        
+    }
+    
+    private func fetchDailyBoxOfficeInfos() {
         Task {
             do {
                 let boxOfficeMovies = try await NetworkManager.shared.fetchDailyBoxOfficeList()
-                dailyBoxOfficeDetails = try await fetchMovieSearchResults(boxOfficeMovies)
+                
+                dailyBoxOfficeInfos = try await fetchMovieSearchResults(boxOfficeMovies)
             }
             catch {
                 if let error = error as? String {
@@ -113,9 +129,9 @@ class MainViewController: UIViewController {
             
         }
         
-        func fetchMovieSearchResults(_ boxOfficeMovies: [DailyBoxOfficeList]) async throws -> [DailyBoxofficeDetail] {
+        func fetchMovieSearchResults(_ boxOfficeMovies: [DailyBoxOfficeList]) async throws -> [DailyBoxOfficeInfo] {
             return try await withThrowingTaskGroup(of: (DailyBoxOfficeList, MovieSearchResult?).self) { group in
-                var movies: [DailyBoxofficeDetail] = []
+                var movies: [DailyBoxOfficeInfo] = []
                 
                 for boxOfficeMovie in boxOfficeMovies {
                     group.addTask {
@@ -125,10 +141,11 @@ class MainViewController: UIViewController {
                 }
                 
                 for try await movie in group {
-                    movies.append(DailyBoxofficeDetail(rank: movie.0.rank,
-                                                       posterURL: movie.1?.posterPath ?? "",
-                                                       title: movie.1?.title ?? "",
-                                                       releaseDate: movie.0.openDt))
+                    movies.append(DailyBoxOfficeInfo(movieID: movie.1?.id ?? 0,
+                                                     rank: movie.0.rank,
+                                                     posterURL: movie.1?.posterPath ?? "",
+                                                     title: movie.1?.title ?? "",
+                                                     releaseDate: movie.0.openDt))
                 }
                 
                 return movies
@@ -138,3 +155,15 @@ class MainViewController: UIViewController {
     
 }
 
+extension MainViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let sortedMovies = dailyBoxOfficeInfos.sorted {
+            (Int($0.rank) ?? 0) < (Int($1.rank) ?? 0)
+        }
+
+        let detailVC = DetailViewController()
+        detailVC.dailyBoxOfficeInfo = sortedMovies[indexPath.row]
+        
+        present(detailVC, animated: true)
+    }
+}
