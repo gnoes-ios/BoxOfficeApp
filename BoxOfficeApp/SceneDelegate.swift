@@ -21,9 +21,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let vc1 = UINavigationController(rootViewController: MainViewController())
         let vc2 = UINavigationController(rootViewController: SearchViewController())
         
-        vc1.title = "Main"
-        vc2.title = "Search"
-        
         tabBarVC.setViewControllers([vc1, vc2], animated: false)
         tabBarVC.modalPresentationStyle = .fullScreen
         tabBarVC.tabBar.backgroundColor = .black
@@ -32,7 +29,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let items = tabBarVC.tabBar.items else { return }
         items[0].image = UIImage(systemName: "house")
+        items[0].title = "홈"
         items[1].image = UIImage(systemName: "magnifyingglass")
+        items[1].title = "검색"
         
         window?.rootViewController = tabBarVC
         window?.makeKeyAndVisible()

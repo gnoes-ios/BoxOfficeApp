@@ -12,11 +12,14 @@ struct DailyBoxOfficeDetail: Hashable {
     let rank: String
     let title: String
     let releaseDate: String
+    let runtime: Int
     let genre: [String]
     let overView: String
-    let rating: Double
+    let rating: String
     let posterURl: String
     let backgroundImageURL: String
     let videoURL: [String?]?
-    
+    let certification: String
+    let director: String
+    let actors: String
 }

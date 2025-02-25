@@ -21,13 +21,15 @@ class MainViewController: UIViewController {
     @Published var dailyBoxOfficeInfos: [DailyBoxOfficeInfo] = []
     var subscriptions = Set<AnyCancellable>()
     
-    enum Section {
-        case main
-    }
+    enum Section { case main }
     typealias Item = DailyBoxOfficeInfo
     var datasource: UICollectionViewDiffableDataSource<Section, Item>!
     
-    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M월 dd일"
+        return formatter.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,25 +37,39 @@ class MainViewController: UIViewController {
         setupUI()
         setupCollectionView()
         setupBindings()
-        setupSeaerchController()
         fetchDailyBoxOfficeInfos()
     }
     
     private func setupUI() {
         self.view.backgroundColor = #colorLiteral(red: 0.05697039515, green: 0.05697039515, blue: 0.05697039515, alpha: 1)
-        var date: String {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "M월 dd일"
-            let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Date())!
-            return dateFormatter.string(from: yesterday)
-        }
-        self.title = "\(date) 박스오피스"
+        
+        configureNavigationBar()
+        configureTabBar()
+    }
+    
+    private func configureNavigationBar() {
+        self.navigationItem.title = "\(formattedDate) 박스오피스"
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .black
+        appearance.shadowColor = .darkGray
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
+    private func configureTabBar() {
+        let tabAppearance = UITabBarAppearance()
+        tabAppearance.configureWithOpaqueBackground()
+        tabAppearance.backgroundColor = .black
+        tabAppearance.shadowColor = .darkGray
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
     }
     
     private func setupCollectionView() {
         collectionView.delegate = self
         collectionView.isScrollEnabled = false
-
+        
         self.view.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -110,46 +126,41 @@ class MainViewController: UIViewController {
             .store(in: &subscriptions)
     }
     
-    private func setupSeaerchController() {
-        
-    }
-    
     private func fetchDailyBoxOfficeInfos() {
         Task {
             do {
                 let boxOfficeMovies = try await NetworkManager.shared.fetchDailyBoxOfficeList()
-                
                 dailyBoxOfficeInfos = try await fetchMovieSearchResults(boxOfficeMovies)
-            }
-            catch {
+            } catch {
                 if let error = error as? String {
                     print(error)
                 }
             }
-            
         }
-        
-        func fetchMovieSearchResults(_ boxOfficeMovies: [DailyBoxOfficeList]) async throws -> [DailyBoxOfficeInfo] {
-            return try await withThrowingTaskGroup(of: (DailyBoxOfficeList, MovieSearchResult?).self) { group in
-                var movies: [DailyBoxOfficeInfo] = []
-                
-                for boxOfficeMovie in boxOfficeMovies {
-                    group.addTask {
-                        let movieSearchList = try await NetworkManager.shared.fetchSearchMovie(boxOfficeMovie)
-                        return (boxOfficeMovie, movieSearchList)
-                    }
+    }
+    
+    private func fetchMovieSearchResults(_ boxOfficeMovies: [DailyBoxOfficeList]) async throws -> [DailyBoxOfficeInfo] {
+        return try await withThrowingTaskGroup(of: (DailyBoxOfficeList, MovieSearchResult?).self) { group in
+            var movies: [DailyBoxOfficeInfo] = []
+            
+            for boxOfficeMovie in boxOfficeMovies {
+                group.addTask {
+                    let movieSearchList = try await NetworkManager.shared.fetchSearchMovie(boxOfficeMovie)
+                    return (boxOfficeMovie, movieSearchList)
                 }
-                
-                for try await movie in group {
-                    movies.append(DailyBoxOfficeInfo(movieID: movie.1?.id ?? 0,
-                                                     rank: movie.0.rank,
-                                                     posterURL: movie.1?.posterPath ?? "",
-                                                     title: movie.1?.title ?? "",
-                                                     releaseDate: movie.0.openDt))
-                }
-                
-                return movies
             }
+            
+            for try await movie in group {
+                movies.append(DailyBoxOfficeInfo(
+                    movieID: movie.1?.id ?? 0,
+                    rank: movie.0.rank,
+                    posterURL: movie.1?.posterPath ?? "",
+                    title: movie.1?.title ?? "",
+                    releaseDate: movie.0.openDt
+                ))
+            }
+            
+            return movies
         }
     }
     
@@ -160,7 +171,7 @@ extension MainViewController: UICollectionViewDelegate {
         let sortedMovies = dailyBoxOfficeInfos.sorted {
             (Int($0.rank) ?? 0) < (Int($1.rank) ?? 0)
         }
-
+        
         let detailVC = DetailViewController()
         detailVC.dailyBoxOfficeInfo = sortedMovies[indexPath.row]
         

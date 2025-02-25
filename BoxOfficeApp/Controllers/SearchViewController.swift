@@ -9,7 +9,7 @@ import UIKit
 import Combine
 
 class SearchViewController: UIViewController {
-
+    
     private lazy var collectionView: UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.layout())
         collectionView.backgroundColor = .clear
@@ -21,16 +21,20 @@ class SearchViewController: UIViewController {
     @Published var dailyBoxOfficeInfos: [DailyBoxOfficeInfo] = []
     var subscriptions = Set<AnyCancellable>()
     
-    enum Section {
-        case main
-    }
+    enum Section { case main }
     typealias Item = DailyBoxOfficeInfo
     var datasource: UICollectionViewDiffableDataSource<Section, Item>!
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M월 dd일"
+        return formatter.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+    }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setupUI()
         setupCollectionView()
         embedSearchControl()
@@ -40,6 +44,28 @@ class SearchViewController: UIViewController {
     
     private func setupUI() {
         self.view.backgroundColor = #colorLiteral(red: 0.05697039515, green: 0.05697039515, blue: 0.05697039515, alpha: 1)
+        
+        configureNavigationBar()
+        configureTabBar()
+    }
+    
+    private func configureNavigationBar() {
+        self.navigationItem.title = "\(formattedDate) 박스오피스"
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .black
+        appearance.shadowColor = .darkGray
+        UINavigationBar.appearance().standardAppearance = appearance
+        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+    }
+    
+    private func configureTabBar() {
+        let tabAppearance = UITabBarAppearance()
+        tabAppearance.configureWithOpaqueBackground()
+        tabAppearance.backgroundColor = .black
+        tabAppearance.shadowColor = .darkGray
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
     }
     
     private func setupCollectionView() {
@@ -108,29 +134,32 @@ class SearchViewController: UIViewController {
         var movies: [DailyBoxOfficeInfo] = []
         
         Task {
-            
             do {
                 let searchMovieList = try await NetworkManager.shared.fetchSearchMovieList(keyword)
-                            
+                
                 for searchMovie in searchMovieList {
-                    movies.append(DailyBoxOfficeInfo(movieID: searchMovie.id,
-                                                                    rank: "",
-                                                                    posterURL: searchMovie.posterPath ?? "",
-                                                                    title: searchMovie.title ?? "",
-                                                                    releaseDate: ""))
+                    let moviePoster = searchMovie.posterPath ?? ""
+                    let movieTitle = searchMovie.title ?? ""
+                    let releaseDate = searchMovie.releaseDate ?? ""
+                    
+                    movies.append(DailyBoxOfficeInfo(
+                        movieID: searchMovie.id,
+                        rank: "",
+                        posterURL: moviePoster,
+                        title: movieTitle,
+                        releaseDate: releaseDate
+                    ))
                 }
                 
                 await MainActor.run {
                     dailyBoxOfficeInfos = movies
                 }
-            }
-            catch {
+            } catch {
                 if let error = error as? String {
                     print(error)
                 }
             }
         }
-        
     }
     
     

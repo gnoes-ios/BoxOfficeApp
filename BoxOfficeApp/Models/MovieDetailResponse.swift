@@ -32,6 +32,7 @@ struct MovieDetailResponse: Codable {
     let voteCount: Int
     let credits: Credits?
     let videos: Videos?
+    let releaseDates: ReleaseDates?
     
     enum CodingKeys: String, CodingKey {
         case adult
@@ -53,6 +54,7 @@ struct MovieDetailResponse: Codable {
         case voteAverage = "vote_average"
         case voteCount = "vote_count"
         case credits, videos
+        case releaseDates = "release_dates"
     }
 }
 
@@ -151,6 +153,38 @@ struct ProductionCountry: Codable {
     }
 }
 
+// MARK: - ReleaseDates
+struct ReleaseDates: Codable {
+    let results: [ReleaseDatesResult]?
+}
+
+// MARK: - ReleaseDatesResult
+struct ReleaseDatesResult: Codable {
+    let iso3166_1: String?
+    let releaseDates: [ReleaseDate]?
+    
+    enum CodingKeys: String, CodingKey {
+        case iso3166_1 = "iso_3166_1"
+        case releaseDates = "release_dates"
+    }
+}
+
+// MARK: - ReleaseDate
+struct ReleaseDate: Codable {
+    let certification: String?
+    let descriptors: [String]?
+    let iso639_1, note, releaseDate: String?
+    let type: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case certification, descriptors
+        case iso639_1 = "iso_639_1"
+        case note
+        case releaseDate = "release_date"
+        case type
+    }
+}
+
 // MARK: - SpokenLanguage
 struct SpokenLanguage: Codable {
     let englishName, iso639_1, name: String?
@@ -164,11 +198,11 @@ struct SpokenLanguage: Codable {
 
 // MARK: - Videos
 struct Videos: Codable {
-    let results: [Result]?
+    let results: [VideosResult]?
 }
 
-// MARK: - Result
-struct Result: Codable {
+// MARK: - VideosResult
+struct VideosResult: Codable {
     let iso639_1, iso3166_1, name, key: String?
     let site: String?
     let size: Int?

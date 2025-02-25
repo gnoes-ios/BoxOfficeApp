@@ -28,7 +28,7 @@ struct TmdbApi {
     static let MovieDetailsPath: String = "/movie"
     static let apiKey: String = Bundle.main.object(forInfoDictionaryKey: "TmdbApiKey") as! String
     static let language: String = "ko-KR"
-    static let appendToResponse: String = "credits,videos"
+    static let appendToResponse: String = "credits,videos,release_dates"
     
     private init() {}
 }

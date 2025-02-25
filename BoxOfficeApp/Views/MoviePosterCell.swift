@@ -117,7 +117,7 @@ class MoviePosterCell: UICollectionViewCell {
         ])
         
         self.PosterContainerView.addSubview(titleLabel)
-        titleLabelTopConstraint = titleLabel.topAnchor.constraint(equalTo: self.PosterImageView.bottomAnchor, constant: 30)
+        titleLabelTopConstraint = titleLabel.topAnchor.constraint(equalTo: self.PosterImageView.bottomAnchor, constant: 35)
         NSLayoutConstraint.activate([
             titleLabelTopConstraint,
             titleLabel.centerXAnchor.constraint(equalTo: self.contentView.centerXAnchor)
