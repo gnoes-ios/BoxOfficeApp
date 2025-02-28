@@ -16,9 +16,9 @@ struct DailyBoxOfficeDetail: Hashable {
     let genre: [String]
     let overView: String
     let rating: String
-    let posterURl: String
+    let imageURLs: [String]
     let backgroundImageURL: String
-    let videoURL: [String?]?
+    let videoURL: [String]
     let certification: String
     let director: String
     let actors: String

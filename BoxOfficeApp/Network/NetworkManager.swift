@@ -102,7 +102,7 @@ final class NetworkManager {
         return movie.results
     }
     // MARK: - 영화 상세 정보 불러오기
-    func fetchMovieDetail(_ movieID: Int) async throws -> MovieDetailResponse {
+    func fetchMovieDetailResponse(_ movieID: Int) async throws -> MovieDetailResponse {
         var components = URLComponents(string: TmdbApi.baseURL + TmdbApi.MovieDetailsPath + "/\(movieID)")
         components?.queryItems = [
             URLQueryItem(name: "api_key", value: TmdbApi.apiKey),
@@ -127,7 +127,31 @@ final class NetworkManager {
         }
         
         return movie
+    }
+    // MARK: - 영화 이미지 불러오기
+    func fetchMovieImageResponse(_ movieID: Int) async throws -> [String] {
+        var components = URLComponents(string: TmdbApi.baseURL + TmdbApi.MovieDetailsPath + "/\(movieID)" + "/images")
+        components?.queryItems = [
+            URLQueryItem(name: "api_key", value: TmdbApi.apiKey)
+        ]
         
+        guard let urlString = components?.url?.absoluteString else {
+            throw "URL 변환 에러"
+        }
+        
+        let url = URL(string: urlString)!
+        
+        let (data, response) = try await URLSession.shared.data(from: url)
+        
+        guard (response as? HTTPURLResponse)?.statusCode == 200 else {
+            throw "서버 응답 에러"
+        }
+        
+        guard let movie = try? JSONDecoder().decode(MovieImageResponse.self, from: data) else {
+            throw "데이터 변환 에러"
+        }
+        
+        return movie.backdrops.map { $0.filePath }
     }
     
 }

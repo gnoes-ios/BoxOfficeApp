@@ -27,6 +27,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         tabBarVC.tabBar.tintColor = .lightGray
         tabBarVC.tabBar.unselectedItemTintColor = .darkGray
         
+        let tabAppearance = UITabBarAppearance()
+        tabAppearance.configureWithOpaqueBackground()
+        tabAppearance.backgroundColor = .black
+        tabAppearance.shadowColor = .darkGray
+        UITabBar.appearance().standardAppearance = tabAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+        
         guard let items = tabBarVC.tabBar.items else { return }
         items[0].image = UIImage(systemName: "house")
         items[0].title = "홈"

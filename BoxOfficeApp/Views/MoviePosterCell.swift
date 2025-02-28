@@ -159,6 +159,6 @@ class MoviePosterCell: UICollectionViewCell {
     }
 
     private func makeImageURL(_ urlString: String) -> URL {
-        return URL(string: "https://image.tmdb.org/t/p/original/" + urlString)!
+        return URL(string: "https://image.tmdb.org/t/p/w780/" + urlString)!
     }
 }

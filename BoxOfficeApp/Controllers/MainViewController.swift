@@ -31,6 +31,11 @@ class MainViewController: UIViewController {
         return formatter.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureNavigationBar()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,9 +47,6 @@ class MainViewController: UIViewController {
     
     private func setupUI() {
         self.view.backgroundColor = #colorLiteral(red: 0.05697039515, green: 0.05697039515, blue: 0.05697039515, alpha: 1)
-        
-        configureNavigationBar()
-        configureTabBar()
     }
     
     private func configureNavigationBar() {
@@ -53,18 +55,10 @@ class MainViewController: UIViewController {
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .black
         appearance.shadowColor = .darkGray
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+        self.navigationController?.navigationBar.standardAppearance = appearance
+        self.navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
-    
-    private func configureTabBar() {
-        let tabAppearance = UITabBarAppearance()
-        tabAppearance.configureWithOpaqueBackground()
-        tabAppearance.backgroundColor = .black
-        tabAppearance.shadowColor = .darkGray
-        UITabBar.appearance().standardAppearance = tabAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
-    }
+
     
     private func setupCollectionView() {
         collectionView.delegate = self

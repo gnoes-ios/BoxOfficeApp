@@ -11,6 +11,10 @@
 		E50AA5CE2D64594900B14357 /* DetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E50AA5CD2D64594900B14357 /* DetailView.swift */; };
 		E50AA5D02D64620400B14357 /* DailyBoxofficeDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = E50AA5CF2D64620400B14357 /* DailyBoxofficeDetail.swift */; };
 		E50AA5D22D6470A300B14357 /* MovieDetailResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E50AA5D12D64709A00B14357 /* MovieDetailResponse.swift */; };
+		E5660F072D705008005B1BCC /* YouTubeiOSPlayerHelper in Frameworks */ = {isa = PBXBuildFile; productRef = E5660F062D705008005B1BCC /* YouTubeiOSPlayerHelper */; };
+		E5660F1C2D705B96005B1BCC /* TrailerPlayerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5660F1B2D705B96005B1BCC /* TrailerPlayerCell.swift */; };
+		E5660F1E2D7075D9005B1BCC /* MovieImageResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5660F1D2D7075D9005B1BCC /* MovieImageResponse.swift */; };
+		E5660F202D707BF7005B1BCC /* StillsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5660F1F2D707BF7005B1BCC /* StillsCell.swift */; };
 		E5EC01882D6361F900392649 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5EC017F2D6361F900392649 /* Assets.xcassets */; };
 		E5EC018A2D6361F900392649 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5EC01822D6361F900392649 /* LaunchScreen.storyboard */; };
 		E5EC018C2D6361F900392649 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5EC017E2D6361F900392649 /* AppDelegate.swift */; };
@@ -31,6 +35,9 @@
 		E50AA5CD2D64594900B14357 /* DetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailView.swift; sourceTree = "<group>"; };
 		E50AA5CF2D64620400B14357 /* DailyBoxofficeDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyBoxofficeDetail.swift; sourceTree = "<group>"; };
 		E50AA5D12D64709A00B14357 /* MovieDetailResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailResponse.swift; sourceTree = "<group>"; };
+		E5660F1B2D705B96005B1BCC /* TrailerPlayerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerPlayerCell.swift; sourceTree = "<group>"; };
+		E5660F1D2D7075D9005B1BCC /* MovieImageResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieImageResponse.swift; sourceTree = "<group>"; };
+		E5660F1F2D707BF7005B1BCC /* StillsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StillsCell.swift; sourceTree = "<group>"; };
 		E5EC01662D6361D300392649 /* BoxOfficeApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BoxOfficeApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5EC017E2D6361F900392649 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E5EC017F2D6361F900392649 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -54,6 +61,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E5EC019B2D6368F900392649 /* Kingfisher in Frameworks */,
+				E5660F072D705008005B1BCC /* YouTubeiOSPlayerHelper in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,6 +117,8 @@
 			children = (
 				E5EC01972D6368C700392649 /* MoviePosterCell.swift */,
 				E50AA5CD2D64594900B14357 /* DetailView.swift */,
+				E5660F1B2D705B96005B1BCC /* TrailerPlayerCell.swift */,
+				E5660F1F2D707BF7005B1BCC /* StillsCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -119,6 +129,7 @@
 				E5EC01A02D63699E00392649 /* DailyBoxOfficeResponse.swift */,
 				E5EC01AB2D636A2300392649 /* MovieSearchResponse.swift */,
 				E50AA5D12D64709A00B14357 /* MovieDetailResponse.swift */,
+				E5660F1D2D7075D9005B1BCC /* MovieImageResponse.swift */,
 				E5EC01A32D6369D200392649 /* DailyBoxOfficeInfo.swift */,
 				E50AA5CF2D64620400B14357 /* DailyBoxofficeDetail.swift */,
 			);
@@ -159,6 +170,7 @@
 			name = BoxOfficeApp;
 			packageProductDependencies = (
 				E5EC019A2D6368F900392649 /* Kingfisher */,
+				E5660F062D705008005B1BCC /* YouTubeiOSPlayerHelper */,
 			);
 			productName = BoxOfficeApp;
 			productReference = E5EC01662D6361D300392649 /* BoxOfficeApp.app */;
@@ -190,6 +202,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				E5EC01992D6368F900392649 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+				E5660F052D705008005B1BCC /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E5EC01672D6361D300392649 /* Products */;
@@ -219,9 +232,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				E50AA5CC2D6450EB00B14357 /* DetailViewController.swift in Sources */,
+				E5660F1C2D705B96005B1BCC /* TrailerPlayerCell.swift in Sources */,
+				E5660F202D707BF7005B1BCC /* StillsCell.swift in Sources */,
 				E50AA5CE2D64594900B14357 /* DetailView.swift in Sources */,
 				E5EC01B22D639AD800392649 /* SearchViewController.swift in Sources */,
 				E50AA5D02D64620400B14357 /* DailyBoxofficeDetail.swift in Sources */,
+				E5660F1E2D7075D9005B1BCC /* MovieImageResponse.swift in Sources */,
 				E5EC01AF2D636A3C00392649 /* NetworkManager.swift in Sources */,
 				E5EC01A42D6369D200392649 /* DailyBoxOfficeInfo.swift in Sources */,
 				E5EC018C2D6361F900392649 /* AppDelegate.swift in Sources */,
@@ -458,6 +474,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		E5660F052D705008005B1BCC /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/youtube/youtube-ios-player-helper.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 		E5EC01992D6368F900392649 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
@@ -469,6 +493,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		E5660F062D705008005B1BCC /* YouTubeiOSPlayerHelper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E5660F052D705008005B1BCC /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */;
+			productName = YouTubeiOSPlayerHelper;
+		};
 		E5EC019A2D6368F900392649 /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E5EC01992D6368F900392649 /* XCRemoteSwiftPackageReference "Kingfisher" */;

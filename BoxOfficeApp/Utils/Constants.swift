@@ -35,6 +35,8 @@ struct TmdbApi {
 
 struct Cell {
     static let moviePosterCellID = "MoviePosterCell"
+    static let stillsCellID = "StillsCell"
+    static let TrailerPlayerCellID = "TrailerPlayerCell"
     
     private init() {}
 }

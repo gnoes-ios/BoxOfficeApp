@@ -47,13 +47,13 @@ class DetailViewController: UIViewController {
     private func fetchDailyBoxOfficeDetail(_ movieID: Int) {
         Task {
             do {
-                let movieDetail = try await NetworkManager.shared.fetchMovieDetail(movieID)
+                let movieDetail = try await NetworkManager.shared.fetchMovieDetailResponse(movieID)
                 
                 let genreStringArray = movieDetail.genres.map { $0.name }
-                let videoUrlArray = movieDetail.videos?.results?.map { $0.key }
+                let videoUrlArray = movieDetail.videos?.results?.compactMap { $0.key }
                 let releaseDatesInKorea = movieDetail.releaseDates?.results?.filter { $0.iso3166_1 == "KR" }.first?.releaseDates?.filter { $0.type == 3 }.first
                 let rating = movieDetail.voteAverage > 0 ? String(format: "%.1f", movieDetail.voteAverage) : "평점 없음"
-                
+                let imageUrls = await fetchMovieImagesURL(movieID)
                 let director = movieDetail.credits?.crew?.filter { $0.job == "Director" }.first?.name
                 let actorsNames = movieDetail.credits?.cast?.prefix(3).compactMap { $0.name }.joined(separator: ", ") ?? "출연 정보 없음"
                 
@@ -67,9 +67,9 @@ class DetailViewController: UIViewController {
                         genre: genreStringArray.isEmpty ? ["장르 정보 없음"] : genreStringArray,
                         overView: movieDetail.overview.isEmpty ? "줄거리 정보 없음" : movieDetail.overview,
                         rating: rating,
-                        posterURl: movieDetail.posterPath ?? "",
+                        imageURLs: imageUrls,
                         backgroundImageURL: movieDetail.backdropPath ?? "",
-                        videoURL: videoUrlArray?.isEmpty == false ? videoUrlArray : ["영상 정보 없음"],
+                        videoURL: videoUrlArray ?? [],
                         certification: releaseDatesInKorea?.certification ?? "관람등급 정보 없음",
                         director: director ?? "감독 정보 없음",
                         actors: actorsNames
@@ -80,6 +80,17 @@ class DetailViewController: UIViewController {
                     print(error)
                 }
             }
+        }
+    }
+    
+    private func fetchMovieImagesURL(_ movieID: Int) async -> [String] {
+        do {
+            return try await NetworkManager.shared.fetchMovieImageResponse(movieID)
+        } catch {
+            if let error = error as? String {
+                print(error)
+            }
+            return []
         }
         
     }

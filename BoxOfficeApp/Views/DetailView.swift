@@ -9,6 +9,19 @@ import UIKit
 
 class DetailView: UIView {
 
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private let contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -174,11 +187,53 @@ class DetailView: UIView {
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
-    }()    
+    }()
+    
+    private let stillsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "스틸컷"
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var stillsCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.layout())
+        collectionView.backgroundColor = .clear
+        collectionView.register(StillsCell.self, forCellWithReuseIdentifier: Cell.stillsCellID)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    
+    private let trailerTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "트레일러"
+        label.textAlignment = .left
+        label.font = UIFont.systemFont(ofSize: 14, weight: .bold)
+        label.textColor = .white
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var trailerCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: self.layout())
+        collectionView.backgroundColor = .clear
+        collectionView.register(TrailerPlayerCell.self, forCellWithReuseIdentifier: Cell.TrailerPlayerCellID)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        return collectionView
+    }()
+    
+    enum Section { case main }
+    typealias Item = String
+    var trailerDatasource: UICollectionViewDiffableDataSource<Section, Item>!
+    var stillsDatasource: UICollectionViewDiffableDataSource<Section, Item>!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
+        configureCollectionView()
         setupUI()
         setupAutoLayout()
     }
@@ -187,94 +242,174 @@ class DetailView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func configureCollectionView() {
+        stillsDatasource = UICollectionViewDiffableDataSource<Section, Item>.init(collectionView: stillsCollectionView, cellProvider: { collectionView, indexPath, item in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.stillsCellID, for: indexPath) as! StillsCell
+            
+            cell.configure(item)
+            
+            return cell
+        })
+        
+        trailerDatasource = UICollectionViewDiffableDataSource<Section, Item>.init(collectionView: trailerCollectionView, cellProvider: { collectionView, indexPath, item in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Cell.TrailerPlayerCellID, for: indexPath) as! TrailerPlayerCell
+            
+            cell.configure(item)
+            
+            return cell
+        })
+    }
+    
+    private func layout() -> UICollectionViewCompositionalLayout {
+        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.7), heightDimension: .fractionalWidth(0.4))
+        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        section.orthogonalScrollingBehavior = .continuousGroupLeadingBoundary
+        section.interGroupSpacing = 10
+        section.contentInsets = NSDirectionalEdgeInsets(top: 10, leading: 30, bottom: 16, trailing: 10)
+        
+        let layout = UICollectionViewCompositionalLayout(section: section)
+        return layout
+    }
     
     func setupUI() {
         self.backgroundColor = #colorLiteral(red: 0.05697039515, green: 0.05697039515, blue: 0.05697039515, alpha: 1)
     }
     
     private func setupAutoLayout() {
-        self.addSubview(backgroundImageView)
+        self.addSubview(scrollView)
         NSLayoutConstraint.activate([
-            backgroundImageView.topAnchor.constraint(equalTo: self.safeAreaLayoutGuide.topAnchor),
-            backgroundImageView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            backgroundImageView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            backgroundImageView.heightAnchor.constraint(equalTo: self.widthAnchor, multiplier: CGFloat(2)/CGFloat(3)),
+            scrollView.topAnchor.constraint(equalTo: self.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
         
-        self.addSubview(movieInfoStackView)
+        self.scrollView.addSubview(contentView)
         NSLayoutConstraint.activate([
-            movieInfoStackView.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
+            contentView.topAnchor.constraint(equalTo: self.scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: self.scrollView.widthAnchor)
+        ])
+        
+        self.contentView.addSubview(backgroundImageView)
+        NSLayoutConstraint.activate([
+            backgroundImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
+            backgroundImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
+            backgroundImageView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
+            backgroundImageView.heightAnchor.constraint(equalTo: self.contentView.widthAnchor, multiplier: CGFloat(2)/CGFloat(3)),
+        ])
+        
+        self.contentView.addSubview(movieInfoStackView)
+        NSLayoutConstraint.activate([
+            movieInfoStackView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20),
             movieInfoStackView.bottomAnchor.constraint(equalTo: self.backgroundImageView.bottomAnchor, constant: -20)
         ])
         
-        self.addSubview(titleLabel)
+        self.contentView.addSubview(titleLabel)
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            titleLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
+            titleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20),
+            titleLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20),
             titleLabel.bottomAnchor.constraint(equalTo: self.movieInfoStackView.topAnchor, constant: -5)
         ])
         
-        self.addSubview(ratingLabel)
+        self.contentView.addSubview(ratingLabel)
         NSLayoutConstraint.activate([
             ratingLabel.topAnchor.constraint(equalTo: self.backgroundImageView.bottomAnchor, constant: 30),
-            ratingLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20)
+            ratingLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20)
         ])
         
-        self.addSubview(ratingTitleLabel)
+        self.contentView.addSubview(ratingTitleLabel)
         NSLayoutConstraint.activate([
             ratingTitleLabel.centerXAnchor.constraint(equalTo: self.ratingLabel.centerXAnchor),
             ratingTitleLabel.topAnchor.constraint(equalTo: self.ratingLabel.bottomAnchor, constant: 10)
         ])
         
-        self.addSubview(certificationLabel)
+        self.contentView.addSubview(certificationLabel)
         NSLayoutConstraint.activate([
             certificationLabel.centerYAnchor.constraint(equalTo: self.ratingLabel.centerYAnchor),
             certificationLabel.leadingAnchor.constraint(equalTo: self.ratingLabel.trailingAnchor, constant: 40)
         ])
         
-        self.addSubview(certificationTitleLabel)
+        self.contentView.addSubview(certificationTitleLabel)
         NSLayoutConstraint.activate([
             certificationTitleLabel.centerXAnchor.constraint(equalTo: self.certificationLabel.centerXAnchor),
             certificationTitleLabel.centerYAnchor.constraint(equalTo: self.ratingTitleLabel.centerYAnchor)
         ])
         
-        self.addSubview(directorTitleLabel)
+        self.contentView.addSubview(directorTitleLabel)
         NSLayoutConstraint.activate([
             directorTitleLabel.topAnchor.constraint(equalTo: self.ratingTitleLabel.bottomAnchor, constant: 40),
             directorTitleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20)
         ])
         
-        self.addSubview(directorLabel)
+        self.contentView.addSubview(directorLabel)
         NSLayoutConstraint.activate([
             directorLabel.leadingAnchor.constraint(equalTo: self.directorTitleLabel.trailingAnchor, constant: 40),
             directorLabel.centerYAnchor.constraint(equalTo: self.directorTitleLabel.centerYAnchor)
         ])
         
-        self.addSubview(actorsTitleLabel)
+        self.contentView.addSubview(actorsTitleLabel)
         NSLayoutConstraint.activate([
             actorsTitleLabel.topAnchor.constraint(equalTo: self.directorTitleLabel.bottomAnchor, constant: 20),
-            actorsTitleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20)
+            actorsTitleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20)
         ])
         
-        self.addSubview(actorsLabel)
+        self.contentView.addSubview(actorsLabel)
         NSLayoutConstraint.activate([
             actorsLabel.leadingAnchor.constraint(equalTo: self.actorsTitleLabel.trailingAnchor, constant: 40),
-            actorsLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20),
+            actorsLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20),
             actorsLabel.centerYAnchor.constraint(equalTo: self.actorsTitleLabel.centerYAnchor)
         ])
         
-        self.addSubview(overViewTitleLabel)
+        self.contentView.addSubview(overViewTitleLabel)
         NSLayoutConstraint.activate([
             overViewTitleLabel.topAnchor.constraint(equalTo: self.actorsTitleLabel.bottomAnchor, constant: 40),
-            overViewTitleLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20)
+            overViewTitleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20)
         ])
         
-        self.addSubview(overViewLabel)
+        self.contentView.addSubview(overViewLabel)
         NSLayoutConstraint.activate([
             overViewLabel.topAnchor.constraint(equalTo: self.overViewTitleLabel.bottomAnchor, constant: 10),
-            overViewLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 20),
-            overViewLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -20)
+            overViewLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20),
+            overViewLabel.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor, constant: -20)
         ])
+        
+        self.contentView.addSubview(stillsTitleLabel)
+        NSLayoutConstraint.activate([
+            stillsTitleLabel.topAnchor.constraint(equalTo: self.overViewLabel.bottomAnchor, constant: 40),
+            stillsTitleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20)
+        ])
+        
+        self.contentView.addSubview(stillsCollectionView)
+        NSLayoutConstraint.activate([
+            stillsCollectionView.topAnchor.constraint(equalTo: self.stillsTitleLabel.bottomAnchor, constant: 10),
+            stillsCollectionView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
+            stillsCollectionView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
+            stillsCollectionView.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        
+        self.contentView.addSubview(trailerTitleLabel)
+        NSLayoutConstraint.activate([
+            trailerTitleLabel.topAnchor.constraint(equalTo: self.stillsCollectionView.bottomAnchor),
+            trailerTitleLabel.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor, constant: 20)
+        ])
+        
+        self.contentView.addSubview(trailerCollectionView)
+        NSLayoutConstraint.activate([
+            trailerCollectionView.topAnchor.constraint(equalTo: self.trailerTitleLabel.bottomAnchor, constant: 10),
+            trailerCollectionView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
+            trailerCollectionView.trailingAnchor.constraint(equalTo: self.contentView.trailingAnchor),
+            trailerCollectionView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -40),
+            trailerCollectionView.heightAnchor.constraint(equalToConstant: 200)
+        ])
+        
     }
     
     func configure(_ movie: DailyBoxOfficeDetail) {
@@ -288,10 +423,26 @@ class DetailView: UIView {
         overViewLabel.text = movie.overView
         directorLabel.text = movie.director
         actorsLabel.text = movie.actors
+        applyStillsDatasource(movie.imageURLs)
+        applyTrailerDatasource(movie.videoURL)
+    }
+    
+    private func applyTrailerDatasource(_ urls: [String] = []) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(urls, toSection: .main)
+        self.trailerDatasource.apply(snapshot)
+    }
+    
+    private func applyStillsDatasource(_ urls: [String] = []) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(urls, toSection: .main)
+        self.stillsDatasource.apply(snapshot)
     }
     
     private func makeImageURL(_ urlString: String) -> URL {
-        return URL(string: "https://image.tmdb.org/t/p/original/" + urlString)!
+        return URL(string: "https://image.tmdb.org/t/p/w1280/" + urlString)!
     }
     
     private func formatCertification(_ certification: String) -> String {

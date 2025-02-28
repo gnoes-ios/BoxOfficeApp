@@ -25,10 +25,9 @@ class SearchViewController: UIViewController {
     typealias Item = DailyBoxOfficeInfo
     var datasource: UICollectionViewDiffableDataSource<Section, Item>!
     
-    private var formattedDate: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "M월 dd일"
-        return formatter.string(from: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        configureNavigationBar()
     }
     
     
@@ -44,28 +43,15 @@ class SearchViewController: UIViewController {
     
     private func setupUI() {
         self.view.backgroundColor = #colorLiteral(red: 0.05697039515, green: 0.05697039515, blue: 0.05697039515, alpha: 1)
-        
-        configureNavigationBar()
-        configureTabBar()
     }
     
     private func configureNavigationBar() {
-        self.navigationItem.title = "\(formattedDate) 박스오피스"
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
         appearance.backgroundColor = .black
         appearance.shadowColor = .darkGray
-        UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
-    }
-    
-    private func configureTabBar() {
-        let tabAppearance = UITabBarAppearance()
-        tabAppearance.configureWithOpaqueBackground()
-        tabAppearance.backgroundColor = .black
-        tabAppearance.shadowColor = .darkGray
-        UITabBar.appearance().standardAppearance = tabAppearance
-        UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+        self.navigationController?.navigationBar.standardAppearance = appearance
+        self.navigationController?.navigationBar.scrollEdgeAppearance = appearance
     }
     
     private func setupCollectionView() {
@@ -73,10 +59,10 @@ class SearchViewController: UIViewController {
         
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 20),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 20)
         ])
         
         configureCollectionView()
@@ -95,6 +81,7 @@ class SearchViewController: UIViewController {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchBar.placeholder = "영화 제목을 검색하세요."
         searchController.obscuresBackgroundDuringPresentation = false
+        searchController.navigationItem.hidesSearchBarWhenScrolling = false
         searchController.searchBar.keyboardType = .default
         searchController.searchBar.autocorrectionType = .no
         searchController.searchBar.spellCheckingType = .no
